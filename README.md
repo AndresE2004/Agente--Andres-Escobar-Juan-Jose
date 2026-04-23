@@ -1,18 +1,68 @@
-# Uso de APIs de datos abiertos en salud mediante agentes autónomos
-Para este proyecto usamos una API de datos abiertos (datos.gov.co) que tiene información del sector salud con actualizaciones periódicas (trimestrales o semestrales).
+## Uso de APIs de datos abiertos en salud mediante agentes autónomos
 
-Con esta API podemos obtener cosas como:
+Este proyecto consume una API de datos abiertos (p. ej. `datos.gov.co`) con información del sector salud con actualizaciones periódicas (trimestrales o semestrales).
+La idea es que **agentes autónomos** consuman estos datos y se encarguen de analizarlos automáticamente para:
+- Detectar cambios importantes en indicadores
+- Identificar tendencias
+- Encontrar posibles problemas (alertas tempranas)
 
-Reportes de obesidad por periodo
+## Stack
+- **Backend**: FastAPI
+- **Orquestación de agentes**: LangGraph
+- **Frontend**: Streamlit
 
-Casos de cáncer en un semestre
+## Arquitectura (esquema actual)
 
-Datos de distintas enfermedades
+Flujo lógico:
+- **Streamlit (`frontend/`)**: UI para consultar/visualizar resultados
+- **FastAPI (`backend/`)**: expone endpoints HTTP y coordina la ejecución
+- **LangGraph (`backend/agents/`)**: orquesta el grafo multiagente
+- **Fuentes de datos**: Socrata/HTTP (`backend/core/socrata_client.py`) y/o base de datos (`backend/core/database.py`)
 
-Cambios en la atención en salud
+Pipeline de agentes (LangGraph):
+`ingesta` → `preparacion` → `analista` → `insights` → `alertas`
 
-Problemas en la entrega de medicamentos
+## Estructura del repo (carpetas principales)
 
-La idea es que los agentes autónomos consuman estos datos y se encarguen de analizarlos automáticamente. Por ejemplo, pueden detectar cambios importantes en los indicadores, identificar tendencias o encontrar posibles problemas en el sistema de salud.
+```
+.
+├── backend/
+│   ├── main.py
+│   ├── api/
+│   ├── core/
+│   ├── agents/
+│   │   ├── graph.py
+│   │   ├── state.py
+│   │   ├── nodes/
+│   │   └── tools/
+│   ├── prompts/
+│   └── schemas/
+├── frontend/
+│   ├── app.py
+│   ├── pages/
+│   └── components/
+├── tests/
+└── requirements.txt
+```
 
-Esto permite tener un monitoreo más constante y automatizado sin tener que hacer todo el análisis manual.
+## Ejecución (sugerida)
+
+Instalar dependencias (idealmente en venv):
+```bash
+pip install -r requirements.txt
+```
+
+Backend:
+```bash
+uvicorn backend.main:app --reload
+```
+
+Frontend:
+```bash
+streamlit run frontend/app.py
+```
+
+Tests:
+```bash
+pytest -q
+```

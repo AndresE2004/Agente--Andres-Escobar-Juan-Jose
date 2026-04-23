@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+streamlit
+langgraph
+pydantic-settings
+python-dotenv
+httpx
+pytest

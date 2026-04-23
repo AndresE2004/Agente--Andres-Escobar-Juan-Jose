@@ -1,0 +1,52 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/.cache/
+
+# Logs
+*.log
+logs/
+
+# Local databases / data artifacts (evita subir datos sensibles)
+*.db
+*.sqlite
+*.sqlite3
+*.parquet
+*.csv
+*.xlsx
+*.jsonl
+
+# Keys / credentials (genérico)
+*.pem
+*.key
+*.p12
+credentials*.json
+service_account*.json
+
