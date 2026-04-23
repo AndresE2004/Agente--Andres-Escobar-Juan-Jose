@@ -81,7 +81,22 @@ Solo ingesta:
 ```bash
 python run.py --mode ingesta
 ```
+Si quieres analizar el Número de Afiliados, ejecutarás:
 
+```Bash
+python run.py --mode ingesta --dataset afiliados
+```
+Si quieres analizar los datos de Vigilancia Pública (SIVIGILA), ejecutarás:
+
+```Bash
+python run.py --mode ingesta --dataset sivigila
+```
+
+Y si quieres ver los datos de las Sedes de Salud (IPS):
+
+```Bash
+python run.py --mode ingesta --dataset ips
+```
 Flujo completo (LangGraph):
 ```bash
 python run.py --mode all

@@ -15,8 +15,9 @@ async def fetch_data(dataset_id: str) -> list[dict[str, Any]]:
 
 
 def ingesta_node(state: AgentState) -> AgentState:
-    print(f"[ingesta] Iniciando descarga desde Socrata dataset={settings.default_dataset_id} ...")
-    rows = asyncio.run(fetch_data(settings.default_dataset_id))
+    dataset_id = state.get("dataset_id") or settings.default_dataset_id
+    print(f"🤖 [Agente de Ingesta] Descargando dataset {dataset_id}...")
+    rows = asyncio.run(fetch_data(dataset_id))
     print(f"[ingesta] Descarga completa. Registros descargados: {len(rows)}")
     return {**state, "data": rows}
 
