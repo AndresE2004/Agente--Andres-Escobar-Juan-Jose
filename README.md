@@ -47,22 +47,59 @@ Pipeline de agentes (LangGraph):
 
 ## Ejecución (sugerida)
 
-Instalar dependencias (idealmente en venv):
+### 1) Crear entorno e instalar dependencias
+
+En Windows (PowerShell):
 ```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Backend:
+En Linux/Mac:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2) Configurar variables de entorno
+
+Copia el ejemplo y ajusta si aplica:
+```bash
+copy .env.example .env
+```
+
+Variables relevantes:
+- `SOCRATA_DOMAIN` (por defecto `datos.gov.co`)
+- `SOCRATA_APP_TOKEN` (opcional, recomendado)
+- `DEFAULT_DATASET_ID` (por defecto `hn4i-593p`)
+
+### 3) Ejecutar el sistema por partes o completo (CLI)
+
+Solo ingesta:
+```bash
+python run.py --mode ingesta
+```
+
+Flujo completo (LangGraph):
+```bash
+python run.py --mode all
+```
+
+### 4) Ejecutar servicios
+
+Backend (FastAPI):
 ```bash
 uvicorn backend.main:app --reload
 ```
 
-Frontend:
+Frontend (Streamlit):
 ```bash
 streamlit run frontend/app.py
 ```
 
-Tests:
+### 5) Tests
 ```bash
 pytest -q
 ```
