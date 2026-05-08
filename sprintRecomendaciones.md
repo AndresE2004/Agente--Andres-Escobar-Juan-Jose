@@ -64,7 +64,7 @@ Infraestructura:
 ------------------------------------------------------------
 
 ------------------------------------------------------------
-SPRINT 1 — Agente de Ingesta y Arquitectura
+SPRINT 1 — Agente de Ingesta y Arquitectura   (listo)
 ------------------------------------------------------------
 
 Objetivo:

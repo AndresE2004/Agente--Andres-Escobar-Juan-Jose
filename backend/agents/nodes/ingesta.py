@@ -4,6 +4,7 @@ from typing import Any
 from backend.agents.state import AgentState
 from backend.core.config import settings
 from backend.core.socrata_client import SocrataClient
+from backend.core.storage import save_raw_data
 
 
 async def fetch_data(dataset_id: str) -> list[dict[str, Any]]:
@@ -16,8 +17,15 @@ async def fetch_data(dataset_id: str) -> list[dict[str, Any]]:
 
 def ingesta_node(state: AgentState) -> AgentState:
     dataset_id = state.get("dataset_id") or settings.default_dataset_id
-    print(f"🤖 [Agente de Ingesta] Descargando dataset {dataset_id}...")
+    print(f"[Agente de Ingesta] Descargando dataset {dataset_id}...")
     rows = asyncio.run(fetch_data(dataset_id))
     print(f"[ingesta] Descarga completa. Registros descargados: {len(rows)}")
+
+    try:
+        path = save_raw_data(dataset_id, rows)
+        print(f"[ingesta] Datos crudos guardados en: {path}")
+    except Exception as exc:
+        print(f"[ingesta] Advertencia: no se pudo guardar el archivo crudo: {exc}")
+
     return {**state, "data": rows}
 

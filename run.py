@@ -4,6 +4,41 @@ from backend.agents.graph import build_graph
 from backend.agents.nodes.ingesta import ingesta_node
 
 
+DATASETS = {
+    "afiliados": "hn4i-593p",
+    "sivigila": "4hyg-wa9d",
+    "ips": "ugc5-acjp",
+}
+
+
+def _build_estado_inicial(dataset_id: str) -> dict:
+    return {
+        "query": "Prueba de ejecución",
+        "dataset_id": dataset_id,
+        "data": None,
+        "insights": [],
+        "alerts": [],
+    }
+
+
+def _run_one(mode: str, alias: str, dataset_id: str, app=None) -> None:
+    print(f"\n=== [run] Procesando dataset '{alias}' ({dataset_id}) ===")
+    estado_inicial = _build_estado_inicial(dataset_id)
+
+    if mode == "ingesta":
+        resultado = ingesta_node(estado_inicial)
+        data = resultado.get("data") or []
+        print("[run] Éxito: ingesta ejecutada.")
+        print(f"[run] Registros obtenidos: {len(data)}")
+        if len(data) > 0:
+            print("[run] Primer registro:")
+            print(data[0])
+        return
+
+    app.invoke(estado_inicial)
+    print(f"[run] Flujo completo terminado para '{alias}'.")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Runner del sistema multiagente")
     parser.add_argument(
@@ -14,43 +49,28 @@ def main() -> int:
     )
     parser.add_argument(
         "--dataset",
-        choices=["afiliados", "sivigila", "ips"],
+        choices=["afiliados", "sivigila", "ips", "all"],
         default="afiliados",
-        help="Dataset a consultar en datos.gov.co (Socrata)",
+        help="Dataset a consultar (o 'all' para procesar los tres)",
     )
     args = parser.parse_args()
 
-    DATASETS = {
-        "afiliados": "hn4i-593p",
-        "sivigila": "4hyg-wa9d",
-        "ips": "ugc5-acjp",
-    }
-    dataset_id = DATASETS[args.dataset]
+    if args.dataset == "all":
+        targets = list(DATASETS.items())
+    else:
+        targets = [(args.dataset, DATASETS[args.dataset])]
 
-    estado_inicial = {
-        "query": "Prueba de ejecución",
-        "dataset_id": dataset_id,
-        "data": None,
-        "insights": [],
-        "alerts": [],
-    }
+    app = build_graph() if args.mode == "all" else None
 
-    if args.mode == "ingesta":
-        resultado = ingesta_node(estado_inicial)
-        data = resultado.get("data") or []
-        print("[run] Éxito: ingesta ejecutada.")
-        print(f"[run] Registros obtenidos: {len(data)}")
-        if len(data) > 0:
-            print("[run] Primer registro:")
-            print(data[0])
-        return 0
+    for alias, dataset_id in targets:
+        try:
+            _run_one(args.mode, alias, dataset_id, app=app)
+        except Exception as exc:
+            print(f"[run] Error procesando '{alias}' ({dataset_id}): {exc}")
 
-    app = build_graph()
-    app.invoke(estado_inicial)
-    print("[run] Flujo completo terminado.")
+    print("\n[run] Proceso finalizado.")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
