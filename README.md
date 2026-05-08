@@ -97,9 +97,9 @@ Y si quieres ver los datos de las Sedes de Salud (IPS):
 ```Bash
 python run.py --mode ingesta --dataset ips
 ```
-Flujo completo (LangGraph):
+Flujo completo (LangGraph)(recomendado):
 ```bash
-python run.py --mode all
+python run.py --mode all --dataset all
 ```
 
 ### 4) Ejecutar servicios
