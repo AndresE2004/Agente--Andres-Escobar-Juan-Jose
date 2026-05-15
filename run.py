@@ -1,4 +1,11 @@
 import argparse
+import sys
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, OSError):
+    pass
 
 from backend.agents.graph import build_graph
 from backend.agents.nodes.ingesta import ingesta_node

@@ -43,11 +43,13 @@ logs/
 *.xlsx
 *.jsonl
 
-# Datos generados por los agentes (raw / clean)
+# Datos generados por los agentes (raw / clean / analysis)
 data/raw/*
 data/clean/*
+data/analysis/*
 !data/raw/.gitkeep
 !data/clean/.gitkeep
+!data/analysis/.gitkeep
 
 # Keys / credentials (genérico)
 *.pem
