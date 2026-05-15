@@ -44,3 +44,20 @@ def save_analysis_data(dataset_id: str, analysis: dict[str, Any]) -> Path:
     with path.open("w", encoding="utf-8") as fh:
         json.dump(analysis, fh, ensure_ascii=False, indent=2, default=str)
     return path
+
+
+def load_raw_data(dataset_id: str) -> list[dict[str, Any]] | None:
+    """Carga datos crudos desde data/raw/<dataset_id>.json si existe."""
+    path = RAW_DIR / f"{dataset_id}.json"
+    if not path.exists():
+        return None
+    with path.open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def load_clean_data(dataset_id: str) -> pd.DataFrame | None:
+    """Carga el DataFrame limpio desde data/clean/<dataset_id>.csv si existe."""
+    path = CLEAN_DIR / f"{dataset_id}.csv"
+    if not path.exists():
+        return None
+    return pd.read_csv(path)
