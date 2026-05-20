@@ -86,7 +86,7 @@ def _run_one(mode: str, alias: str, dataset_id: str, app=None) -> None:
         return
 
     app.invoke(estado_inicial)
-    print(f"[run] Flujo completo (Sprints 1-3) terminado para '{alias}'.")
+    print(f"[run] Flujo completo (Sprints 1-4) terminado para '{alias}'.")
 
 
 def main() -> int:
@@ -97,7 +97,7 @@ def main() -> int:
         default="ingesta",
         help=(
             "ingesta=Sprint1 | preparacion=Sprint2 | analista=Sprint3 | "
-            "all=Sprints 1-3 en cadena (más nodos placeholder)"
+            "all=Sprints 1-4 (+ alertas placeholder)"
         ),
     )
     parser.add_argument(

@@ -12,12 +12,14 @@ DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 CLEAN_DIR = DATA_DIR / "clean"
 ANALYSIS_DIR = DATA_DIR / "analysis"
+INSIGHTS_DIR = DATA_DIR / "insights"
 
 
 def _ensure_dirs() -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     CLEAN_DIR.mkdir(parents=True, exist_ok=True)
     ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+    INSIGHTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def save_raw_data(dataset_id: str, data: list[dict[str, Any]]) -> Path:
@@ -61,3 +63,11 @@ def load_clean_data(dataset_id: str) -> pd.DataFrame | None:
     if not path.exists():
         return None
     return pd.read_csv(path)
+
+
+def save_insights_data(dataset_id: str, text: str) -> Path:
+    """Guarda el informe de insights en data/insights/<dataset_id>.txt."""
+    _ensure_dirs()
+    path = INSIGHTS_DIR / f"{dataset_id}.txt"
+    path.write_text(text, encoding="utf-8")
+    return path

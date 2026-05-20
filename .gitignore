@@ -47,9 +47,11 @@ logs/
 data/raw/*
 data/clean/*
 data/analysis/*
+data/insights/*
 !data/raw/.gitkeep
 !data/clean/.gitkeep
 !data/analysis/.gitkeep
+!data/insights/.gitkeep
 
 # Keys / credentials (genérico)
 *.pem

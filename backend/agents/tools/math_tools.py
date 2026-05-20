@@ -60,3 +60,33 @@ def calculate_trend_summary(df: pd.DataFrame, value_col: str) -> dict:
         }
     except (ValueError, TypeError, KeyError):
         return {"total": 0.0, "promedio": 0.0, "max": 0.0, "min": 0.0, "n": 0}
+
+
+def analyze_ips_by_department(df: pd.DataFrame) -> tuple[dict, list[dict]]:
+    """Analiza IPS contando registros por departamento y detecta concentraciones atípicas."""
+    if df is None or df.empty or "depa_nombre" not in df.columns:
+        return {}, []
+
+    counts = df["depa_nombre"].value_counts()
+    if counts.empty:
+        return {}, []
+
+    mean = float(counts.mean())
+    std = float(counts.std(ddof=0))
+    threshold = mean + 2.0 * std if std > 0 else mean
+
+    summary = {
+        "total_registros": int(len(df)),
+        "departamentos_distintos": int(counts.shape[0]),
+        "promedio_ips_por_departamento": round(mean, 2),
+        "max_ips_en_un_departamento": int(counts.max()),
+        "departamento_con_mas_ips": str(counts.idxmax()),
+        "n": int(len(df)),
+    }
+
+    anomalies = [
+        {"depa_nombre": str(dept), "conteo_ips": int(count)}
+        for dept, count in counts.items()
+        if count > threshold
+    ]
+    return summary, anomalies

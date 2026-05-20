@@ -3,18 +3,44 @@ from __future__ import annotations
 import pandas as pd
 
 from backend.agents.state import AgentState
+from backend.agents.tools.analysis_enrichment import enrich_anomalies
 from backend.agents.tools.math_tools import (
+    analyze_ips_by_department,
     calculate_trend_summary,
     detect_anomalies,
 )
 from backend.core.config import settings
 from backend.core.storage import save_analysis_data
 
-
 DATASET_VALUE_COLUMNS: dict[str, str] = {
     "afiliados": "numpersonas",
     "sivigila": "conteo",
 }
+
+METRIC_NOTES: dict[str, str] = {
+    "afiliados": (
+        "El campo 'total' es la SUMA de 'numpersonas' en las filas del extracto "
+        "(municipio/mes), NO es el total de afiliados únicos en Colombia."
+    ),
+    "sivigila": (
+        "El campo 'total' es la SUMA de 'conteo' en las filas del extracto "
+        "(evento/semana/municipio), NO es el total nacional del evento."
+    ),
+    "ips": (
+        "Se analiza la cantidad de registros IPS por departamento en el extracto. "
+        "Las anomalías son departamentos con concentración inusualmente alta."
+    ),
+}
+
+
+def _detect_dataset_type(df: pd.DataFrame) -> str | None:
+    if "numpersonas" in df.columns:
+        return "afiliados"
+    if "conteo" in df.columns:
+        return "sivigila"
+    if "depa_nombre" in df.columns and "codigo_habilitacion" in df.columns:
+        return "ips"
+    return None
 
 
 def analista_node(state: AgentState) -> AgentState:
@@ -24,21 +50,41 @@ def analista_node(state: AgentState) -> AgentState:
         print("[Agente Analista] Advertencia: no hay DataFrame válido para analizar.")
         return state
 
-    print("📈 [Agente Analista] Iniciando análisis estadístico...")
+    print("[Agente Analista] Iniciando análisis estadístico...")
 
+    dataset_type = _detect_dataset_type(df)
     analysis_results: dict = {
-        "dataset_type": "unknown",
+        "dataset_type": dataset_type or "unknown",
+        "column_analyzed": None,
+        "rows_in_sample": len(df),
+        "metric_note": "",
         "summary": {},
         "anomalies": [],
     }
 
     try:
-        for dataset_type, value_col in DATASET_VALUE_COLUMNS.items():
-            if value_col in df.columns:
-                analysis_results["dataset_type"] = dataset_type
-                analysis_results["summary"] = calculate_trend_summary(df, value_col)
-                analysis_results["anomalies"] = detect_anomalies(df, value_col)
-                break
+        if dataset_type == "ips":
+            summary, anomalies = analyze_ips_by_department(df)
+            analysis_results["column_analyzed"] = "conteo por depa_nombre"
+            analysis_results["summary"] = summary
+            analysis_results["anomalies"] = anomalies
+            analysis_results["metric_note"] = METRIC_NOTES["ips"]
+        elif dataset_type in DATASET_VALUE_COLUMNS:
+            value_col = DATASET_VALUE_COLUMNS[dataset_type]
+            analysis_results["column_analyzed"] = value_col
+            analysis_results["summary"] = calculate_trend_summary(df, value_col)
+            analysis_results["anomalies"] = detect_anomalies(df, value_col)
+            analysis_results["metric_note"] = METRIC_NOTES[dataset_type]
+        else:
+            print("[Agente Analista] No se reconoció un esquema de dataset analizable.")
+
+        dtype = analysis_results["dataset_type"]
+        if dtype and dtype != "unknown":
+            enriched = enrich_anomalies(analysis_results["anomalies"], dtype)
+            analysis_results["anomalies"] = enriched
+            analysis_results["anomalies_detalle"] = [
+                row.get("ubicacion", "") for row in enriched
+            ]
     except Exception as exc:
         print(f"[Agente Analista] Error durante el análisis: {exc}")
         return {**state, "analysis": analysis_results}

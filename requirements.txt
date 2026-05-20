@@ -2,6 +2,8 @@ fastapi
 uvicorn[standard]
 streamlit
 langgraph
+langchain-core
+langchain-community
 pydantic-settings
 python-dotenv
 httpx
